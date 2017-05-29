@@ -735,7 +735,7 @@ sub log
 {
   my $self = shift;
 
-  print STDERR @_;
+  print STDERR "@_\n";
 }
 
 sub log_debug
