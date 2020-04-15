@@ -66,7 +66,7 @@ sub _storage_load
   my $fn = $self->_key_to_fn( { READONLY => 1 }, @_ );
   if( ! -r $fn )
     {
-    carp "error: session file not readable: $fn";
+    #carp "error: session file not readable: $fn";
     return undef;
     }
   my $in_data;

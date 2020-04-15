@@ -217,10 +217,10 @@ sub main_process
       next;
       }
     my $v = CGI::param( $n );
-    my @v = CGI::param( $n );
+    #my @v = CGI::param( $n );
 
-    $self->log_debug( "debug: CGI input param [$n] value [$v] [@v]" );
-    
+    $self->log_debug( "CGI input param [$n] value [$v]" );
+
     if( $self->__input_cgi_skip_invalid_value( $n, $v ) )
       {
       $self->log( "error: invalid CGI/input value for parameter: [$n]" );
@@ -269,9 +269,9 @@ sub main_process
   my $page_shr = {}; # user session hash ref
   if( ! ( $page_sid =~ /^[a-zA-Z0-9]+$/ and $page_shr = $self->sess_load( 'PAGE', $page_sid ) ) )
     {
-    $self->log( "warning: invalid page session [$page_sid]" );
+    $self->log_debug( "warning: invalid page session [$page_sid]" );
     $page_sid = $self->sess_create( 'PAGE', 8 );
-    $self->log( "warning: new page session created [$page_sid]" );
+    $self->log_debug( "warning: new page session created [$page_sid]" );
     $page_shr = { ':ID' => $page_sid };
     }
   $self->{ 'SESSIONS' }{ 'SID'  }{ 'PAGE' } = $page_sid;
@@ -347,7 +347,7 @@ sub __create_new_user_session
   $self->{ 'SESSIONS' }{ 'DATA' }{ 'USER' }{ $user_sid } = $user_shr;
 
   $self->set_cookie( $cookie_name, -value => $user_sid );
-  $self->log( "debug: creating new user session [$user_sid]" );
+  $self->log_debug( "creating new user session [$user_sid]" );
 
   my $user_session_expire = $self->{ 'ENV' }{ 'USER_SESSION_EXPIRE' } || 1382400; # 16 days :)
 
@@ -556,7 +556,7 @@ sub set_cookie
   my $name = shift;
   my %opt  = @_;
 
-  $self->log( "debug: creating new cookie [$name]" );
+  $self->log_debug( "creating new cookie [$name]" );
   # FIXME: validate %opt  Data::Validate::Struct
 
   $opt{ -name } = $name;
@@ -605,7 +605,7 @@ sub __make_headers
 
   $headers .= "\n"; # just single newline separator
 
-  $self->log_dumper( 'HEADERS', $headers );
+  $self->log_debug( 'HEADERS', Dumper( $headers ) );
 
   return $headers;
 }
@@ -888,7 +888,7 @@ sub render
   print $page_headers;
   print $page_data;
 
-  $self->log_debug( "debug: page response content: page, action, type, headers, data: " . Dumper( $page, $action, $page_type, $page_headers, $page_type =~ /^text\// ? $page_data : '*binary*' ) ) if $self->is_debug() > 1;
+  $self->log_debug( "page response content: page, action, type, headers, data: " . Dumper( $page, $action, $page_type, $page_headers, $page_type =~ /^text\// ? $page_data : '*binary*' ) ) if $self->is_debug() > 1;
 
   if( $self->is_debug() and $page_type eq 'text/html' )
     {
@@ -1153,8 +1153,8 @@ sub need_post_method
   my $self = shift;
 
   my $he = $self->get_http_env();
-  
-  print STDERR Dumper( $he ); 
+
+  #print STDERR Dumper( $he );
   return if $he->{ 'REQUEST_METHOD' } eq 'POST';
 
   $self->logout();

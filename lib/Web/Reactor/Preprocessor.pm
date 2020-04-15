@@ -90,7 +90,7 @@ sub load_file
   if( ! $fn )
     {
     # FIXME: not a error really, more like warning, should be able to disable :))
-    $reo->log( "error: cannot find file [$fn] dirs list [@$dirs]" );
+    $reo->log_debug( "warning: cannot find file [$pn] dirs list [@$dirs]" );
     return undef;
     }
 
