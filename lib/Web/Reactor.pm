@@ -17,6 +17,7 @@ use CGI::Cookie;
 use Data::Tools;
 use Data::Dumper;
 use Exception::Sink;
+use POSIX;
 
 our $VERSION = '0.05';
 
@@ -157,7 +158,7 @@ sub main_process
     {
 #    print STDERR Dumper( $user_sid, $user_shr );
 
-    $self->log( "warning: invalid user session [$user_sid]" );
+    $self->log( "warning: invalid user session [$user_sid]" ) if $user_sid ne '';
 
     ( $user_sid, $user_shr ) = $self->__create_new_user_session();
     }
@@ -188,7 +189,7 @@ sub main_process
     # check if session parameters are changed, stealing session?
     next if $user_shr->{ ":HTTP_CHECK_HR" }{ $k } eq $ENV{ $k };
 
-    $self->log( "status: user session parameters check failed [$user_sid]" );
+    $self->log( "error: mismatch session data [$k] expected [$user_shr->{':HTTP_CHECK_HR'}{$k}] got [$ENV{$k}], SID [$user_sid]" );
     # FIXME: move to function: close_session();
     $user_shr->{ ':CLOSED'       } = 1;
     $user_shr->{ ':ETIME'        } = time();
@@ -735,7 +736,10 @@ sub log
 {
   my $self = shift;
 
-  print STDERR "@_\n";
+  my $tm = strftime( "%Y%m%d%H%M%S", localtime() );
+  my $app_name = $self->{ ENV }{ APP_NAME };
+  local $" = ' ';
+  print STDERR "$tm $ENV{REMOTE_ADDR} $app_name\[$$] @_\n";
 }
 
 sub log_debug
